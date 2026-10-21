@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <!--
+    Si la app se publica en una subcarpeta, compila con --base-href /carpeta/.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="description" content="Baron Golden Boss · Porte de boss. Joyería en oro: cadenas, pulseras, dijes, topos y anillos. Elige tu pieza, sepárala con el 20 % o cómprala.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CO">
+  <meta property="og:site_name" content="Baron Golden Boss">
+  <meta property="og:title" content="Baron Golden Boss · Porte de boss">
+  <meta property="og:description" content="Joyería en oro: cadenas, pulseras, dijes, topos y anillos. Elige tu pieza, sepárala con el 20 % o cómprala.">
+  <meta property="og:url" content="https://oro.murillocode.com/">
+  <meta property="og:image" content="https://oro.murillocode.com/og-catalogo.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#010101">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Baron Golden Boss">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=3">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="icon" type="image/png" href="favicon.png?v=3" />
+
+  <title>Baron Golden Boss | Joyería en oro</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <!--
+    Pantalla de carga liviana: se pinta antes de que baje el motor de Flutter
+    y se desvanece con el primer cuadro. Es el logo de la marca en texto (BG, BARON,
+    GOLDEN BOSS, PORTE DE BOSS) con los colores de AppCatalogColors (negro, dorado, marfil);
+    si cambias esa paleta, cámbialo aquí también.
+  -->
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #010101;
+    }
+
+    #arranque {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      background: radial-gradient(ellipse at 50% 45%, #1d1608 0%, #010101 62%);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      opacity: 1;
+      transition: opacity 500ms ease-out;
+    }
+
+    #arranque.saliendo {
+      opacity: 0;
+    }
+
+    /* El logo en texto (nítido en cualquier pantalla): BG, BARON, GOLDEN BOSS y PORTE DE BOSS. */
+    #arranque .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: arranque-entra 900ms ease-out both;
+    }
+
+    #arranque .bg {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 56px;
+      line-height: 1;
+      background: linear-gradient(135deg, #e6cb82, #a8812f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    #arranque .baron {
+      margin-top: 14px;
+      padding-left: 0.55em; /* compensa el espacio final del tracking */
+      font-size: 34px;
+      font-weight: 300;
+      letter-spacing: 0.55em;
+      color: #f4efe6;
+    }
+
+    #arranque .golden {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.4em;
+      color: #e6cb82;
+    }
+
+    #arranque .golden i {
+      display: block;
+      width: 34px;
+      height: 1px;
+      background: #c9a24a;
+    }
+
+    #arranque .porte {
+      margin-top: 14px;
+      font-size: 11px;
+      letter-spacing: 0.45em;
+      color: #a59c8c;
+    }
+
+    #arranque .barra {
+      width: 150px;
+      height: 2px;
+      border-radius: 999px;
+      background: #2b2620;
+      overflow: hidden;
+    }
+
+    #arranque .barra span {
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: 999px;
+      background: #c9a24a;
+      animation: arranque-va 1.1s ease-in-out infinite;
+    }
+
+    @keyframes arranque-entra {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes arranque-va {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #arranque { transition: none; }
+      #arranque .logo { animation: none; }
+      #arranque .barra span {
+        animation: none;
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div id="arranque" role="status" aria-label="Abriendo Baron Golden Boss">
+    <div class="logo">
+      <div class="bg">BG</div>
+      <div class="baron">BARON</div>
+      <div class="golden"><i></i><span>GOLDEN BOSS</span><i></i></div>
+      <div class="porte">PORTE DE BOSS</div>
+    </div>
+    <div class="barra"><span></span></div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      // El splash se desvanece y deja ver el catálogo, que entra de los lados.
+      var arranque = document.getElementById('arranque');
+      if (arranque) {
+        arranque.classList.add('saliendo');
+        setTimeout(function () { arranque.remove(); }, 600);
+      }
+      // Flutter reemplaza la etiqueta viewport al arrancar y se pierde
+      // interactive-widget: sin ella el teclado del navegador móvil deja una
+      // banda vacía encima en vez de encoger el contenido.
+      var viewport = document.querySelector('meta[name=viewport]');
+      if (viewport) {
+        viewport.setAttribute('content',
+          'width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content');
+      }
+    });
+  </script>
+
+  <!-- Archivo aparte, no incrustado: incrustarlo adelanta la descarga del
+       motor y hunde el LCP. -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>

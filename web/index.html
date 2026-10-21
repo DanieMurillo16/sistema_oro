@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <!--
+    Si la app se publica en una subcarpeta, compila con --base-href /carpeta/.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="description" content="Administración de Sistema Oro: prendas, pedidos, separados y clientes.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Sistema Oro">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=3">
+  <link rel="preload" as="image" href="icons/Icon-192.png" fetchpriority="high">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <link rel="icon" type="image/png" href="favicon.png?v=3" />
+
+  <title>Sistema Oro | Administración</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <!--
+    Pantalla de carga liviana: se pinta antes de que baje el motor de Flutter
+    y se retira con el primer cuadro. Colores de AppColors (background,
+    primary, border y muted) en su versión oscura (AppDarkColors); si cambias
+    AppColors.primary, cámbialo aquí también. La imagen es el icono de la app (icons/Icon-192.png).
+  -->
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #0D1117;
+    }
+
+    #arranque {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: #0D1117;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    #arranque .marca {
+      width: 72px;
+      height: 72px;
+      border-radius: 11px;
+    }
+
+    #arranque .barra {
+      width: 180px;
+      height: 4px;
+      border-radius: 999px;
+      background: #2A313B;
+      overflow: hidden;
+    }
+
+    #arranque .barra span {
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: 999px;
+      background: #D2AE6D;
+      animation: arranque-va 1.1s ease-in-out infinite;
+    }
+
+    #arranque .texto {
+      font-size: 13px;
+      color: #9BA3AF;
+      letter-spacing: 0.2px;
+    }
+
+    @keyframes arranque-va {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #arranque .barra span {
+        animation: none;
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div id="arranque">
+    <img class="marca" src="icons/Icon-192.png" alt="Sistema Oro" fetchpriority="high">
+    <div class="barra"><span></span></div>
+    <div class="texto">Abriendo Sistema Oro...</div>
+  </div>
+
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var arranque = document.getElementById('arranque');
+      if (arranque) arranque.remove();
+      // Flutter reemplaza la etiqueta viewport al arrancar y se pierde
+      // interactive-widget: sin ella el teclado del navegador móvil deja una
+      // banda vacía encima en vez de encoger el contenido.
+      var viewport = document.querySelector('meta[name=viewport]');
+      if (viewport) {
+        viewport.setAttribute('content',
+          'width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content');
+      }
+    });
+  </script>
+
+  <!-- Archivo aparte, no incrustado: incrustarlo adelanta la descarga del
+       motor y hunde el LCP. -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>
