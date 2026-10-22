@@ -134,3 +134,9 @@ Lo que sigue es **probar y ajustar** (no hay pasos de construcción pendientes).
 - Catálogo: cabecera fija con buscador arriba y **tipos de prenda al bajar** (`catalogHeaderCompactProvider`, `CatalogHeaderMiddle`, `CatalogTypeStrip`); se quitó la fila de chips de `CatalogFilters`.
 - Admin: Resumen mensual (`features/summary`), Anular abono/pago (con motivo) y Banco en el detalle del pedido, Nombre+Tipo en pareja en «Nueva prenda», `AppToggle` con texto centrado, arreglo del cargador infinito al crear prenda (subida de fotos dentro de la operación observada, `keepAlive`) y de las miniaturas.
 - Migraciones **006 y 007** + PHP + catálogo instalados y probados por el usuario en producción.
+
+### 2026-10-22 · Tarjeta de Pedidos con comprobante
+- `OrderTile(showTypeAndReceipt: true)` (solo «Pedidos»): `OrderTypeChip`, `ReceiptThumb` (miniatura 44 px, `receiptThumbProvider` → `OrdersRepository.receiptThumb` → `pedidos/comprobante.php?miniatura=1`), banco con icono. `Order` ganó `receipt` y `bank`. Migración 008 + PHP subidos por el usuario (2026-10-22).
+
+### 2026-10-22 · Pestañas de Pedidos y Separados al pie (una mano)
+- `BottomToggleBar` (shared) en `Scaffold.bottomNavigationBar` de las dos pantallas (`OrdersTabsBar`, `LayawaysTabsBar`); la búsqueda y los KPI siguen arriba. `AppToggle(touch: true)` da ≥ 44 px de toque; el texto de la barra crece hasta 1.2×. Se esconde con el teclado (`keyboardOpenProvider`, que mira la ventana real: el Scaffold del menú le quita el teclado al `MediaQuery`). Clientes y Prendas siguen con las pestañas arriba (`ListFilterBar`).

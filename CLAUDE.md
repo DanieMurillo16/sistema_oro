@@ -79,7 +79,7 @@ flutter test
 bash scripts/build_web.sh --dart-define=API_BASE_URL=https://cobros.com.co/bd_oro/   # web con Wasm
 ```
 
-`API_BASE_URL` va por `--dart-define` (o `.env.json`, ignorado por git); nunca en el código. El catálogo se compila con
+`API_BASE_URL` va por `--dart-define` (o `.env.json`, ignorado por git); nunca en el código. Para correr desde el IDE o el emulador sin escribir nada: `flutter run --dart-define-from-file=.env.json` (las configuraciones de Android Studio `.idea/runConfigurations/` y de VS Code `.vscode/launch.json` ya lo llevan; si falta `.env.json`, copiar `.env.json.ejemplo`). El catálogo se compila con
 `bash scripts/build_catalogo.sh --dart-define=API_BASE_URL=...` (salida `build/catalogo`, `index.html` propio en `web_catalogo/`).
 
 ## Identidad visual

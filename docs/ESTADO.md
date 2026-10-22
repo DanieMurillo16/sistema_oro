@@ -106,3 +106,8 @@ Hoy: la app (admin y catálogo) está *implementada y probada localmente* con re
 - **Cabecera:** arriba del todo solo el logo centrado; al bajar, logo a la izquierda + tipos de prenda + botón de chat (en teléfono, tipos en su fila). Alto fijo, cambio con fundido.
 - **Buscador retirado** (UI, `search()` del provider, `query` del filtro y el parámetro `buscar` del repositorio). El endpoint `publico/prendas.php` sigue aceptando `buscar`. **Posible mejora (no hecha):** con muchas prendas conviene un icono de búsqueda en la cabecera compacta que abra el buscador.
 - **Diálogo comprar/separar:** miniatura = primera foto del detalle (el detalle no trae `miniatura`, ver API.md); cantidad centrada con la fila.
+
+## Tarjeta de «Pedidos»: comprobante, tipo y banco (2026-10-22)
+- **Instalado (el usuario subió SQL y PHP el 2026-10-22; falta que confirme el resultado en la app):** migración **008** (`comprobante` y `banco` del pago inicial vigente en `pedidos/listar.php`) + PHP (`pedidos/comprobante.php?miniatura=1`: JPEG ≤ 240 px con caché en `privado/comprobantes_oro/miniaturas/`). Paquete: `backend/entregas/SUBIR_TODO/` (solo la 008 + PHP completo).
+- App admin: en «Pedidos» cada tarjeta lleva chip de contorno **Compra / Separación** (aparte del chip de estado), el banco (si existe) y la miniatura del comprobante (toque → visor con zoom). En Separados la tarjeta no cambia.
+- Sin verificar: servidor real (GD y permisos de la carpeta `miniaturas/` en Hostinger), teléfono real, imagen real decodificada.

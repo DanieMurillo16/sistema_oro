@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Administración",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["--dart-define-from-file=.env.json"]
+    },
+    {
+      "name": "Catálogo público",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_catalogo.dart",
+      "args": ["--dart-define-from-file=.env.json"]
+    }
+  ]
+}
