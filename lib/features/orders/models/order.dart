@@ -26,6 +26,8 @@ class Order {
     required this.monthsOverdue,
     required this.deadline,
     this.lastPayment,
+    this.receipt,
+    this.bank,
     this.detail,
   });
 
@@ -50,6 +52,8 @@ class Order {
     monthsOverdue: jsonInt(json['meses_vencidos']),
     deadline: jsonDateOrNull(json['fecha_limite']),
     lastPayment: jsonDateOrNull(json['ultimo_pago']),
+    receipt: jsonStringOrNull(json['comprobante']),
+    bank: jsonStringOrNull(json['banco']),
     detail: json.containsKey('subtotal')
         ? OrderDetailFields.fromJson(json)
         : null,
@@ -78,6 +82,11 @@ class Order {
   /// Fecha del último pago vigente (pago inicial incluido); `null` si el
   /// servidor aún no la manda.
   final DateTime? lastPayment;
+
+  /// Comprobante del pago inicial: nombre de archivo (se descarga con el
+  /// Bearer; el listado lo trae, `null` si no hay) y banco de origen.
+  final String? receipt;
+  final String? bank;
 
   /// Solo si vino de `pedidos/obtener.php`.
   final OrderDetailFields? detail;

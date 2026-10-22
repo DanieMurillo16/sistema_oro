@@ -6,6 +6,7 @@ import 'package:sistema_oro/features/orders/providers/order_counters_provider.da
 import 'package:sistema_oro/features/orders/providers/order_filters_provider.dart';
 import 'package:sistema_oro/features/orders/providers/orders_provider.dart';
 import 'package:sistema_oro/features/orders/widgets/order_tile.dart';
+import 'package:sistema_oro/features/orders/widgets/orders_tabs_bar.dart';
 import 'package:sistema_oro/features/orders/widgets/orders_header.dart';
 import 'package:sistema_oro/shared/widgets/app_async_view.dart';
 import 'package:sistema_oro/shared/widgets/list_header_padding.dart';
@@ -41,6 +42,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     final orders = ref.watch(filteredOrdersProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Pedidos')),
+      bottomNavigationBar: const OrdersTabsBar(),
       body: PageBody(
         child: Column(
           children: [
@@ -58,6 +60,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                   itemBuilder: (context, index) => OrderTile(
                     key: ValueKey(orders[index].id),
                     order: orders[index],
+                    showTypeAndReceipt: true,
                     onTap: () => context.go(AppRoutes.order(orders[index].id)),
                   ),
                 ),

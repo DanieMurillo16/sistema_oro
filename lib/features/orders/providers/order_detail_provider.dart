@@ -18,3 +18,13 @@ final orderDetailProvider = FutureProvider.autoDispose.family<OrderDetail, int>(
 final receiptProvider = FutureProvider.autoDispose.family<Uint8List, String>(
   (ref, file) => ref.read(ordersRepositoryProvider).receipt(file),
 );
+
+/// La miniatura de un comprobante (tarjeta del listado). Se conserva mientras
+/// dure la sesión: es pequeña y volver a bajar al desplazar sería parpadeo.
+final receiptThumbProvider = FutureProvider.family<Uint8List, String>((
+  ref,
+  file,
+) {
+  ref.watch(sessionUserIdProvider);
+  return ref.read(ordersRepositoryProvider).receiptThumb(file);
+});

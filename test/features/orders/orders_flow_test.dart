@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistema_oro/core/network/api_endpoints.dart';
 import 'package:sistema_oro/features/orders/providers/order_counters_provider.dart';
+import 'package:sistema_oro/features/orders/widgets/dialogs/receipt_dialog.dart';
+import 'package:sistema_oro/features/orders/widgets/receipt_thumb.dart';
 
 import '../../helpers/order_fixtures.dart';
 import '../../support/pump_at_sizes.dart';
@@ -30,6 +32,121 @@ Future<void> _openFirstOrder(WidgetTester tester) async {
 }
 
 void main() {
+  group('pestañas al pie (una mano)', () {
+    testWidgets('Pedidos y Separados llevan las pestañas abajo y funcionan', (
+      tester,
+    ) async {
+      await _open(
+        tester,
+        rows: [
+          orderRow(),
+          orderRow(
+            id: 8,
+            code: 'ZZ99YY88',
+            status: 'CONFIRMADO',
+            client: 'ana gómez',
+          ),
+        ],
+      );
+      final screenHeight = tester.view.physicalSize.height;
+
+      Future<void> expectBottom(String tab) async {
+        final rect = tester.getRect(find.text(tab).last);
+        expect(rect.center.dy, greaterThan(screenHeight * 0.75), reason: tab);
+        // Arriba solo quedan los KPI/búsqueda: la pestaña no está junto al campo.
+        expect(
+          rect.top,
+          greaterThan(tester.getRect(find.byType(TextField)).bottom + 200),
+        );
+      }
+
+      await expectBottom('Compras');
+      await tester.tap(find.text('Todos').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Ana Gómez'), findsOneWidget); // la pestaña filtra
+
+      await tester.tap(find.text('Separados').last);
+      await tester.pumpAndSettle();
+      await expectBottom('Vencidos');
+    });
+
+    testWidgets('con el teclado abierto se esconden', (tester) async {
+      await _open(tester);
+      expect(find.text('Compras'), findsOneWidget);
+
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(tester.view.resetViewInsets);
+      await tester.pumpAndSettle();
+      expect(find.text('Compras'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('tarjeta del pedido', () {
+    testWidgets('chip Compra/Separación, banco y miniatura del comprobante', (
+      tester,
+    ) async {
+      final server = await _open(
+        tester,
+        rows: [
+          orderRow(receipt: 'c1.jpg', bank: 'Bancolombia'),
+          orderRow(
+            id: 8,
+            code: 'ZZ99YY88',
+            type: 'SEPARADO',
+            client: 'ana gómez',
+            receipt: 'c2.jpg',
+          ),
+          orderRow(id: 9, code: 'QQ11WW22', client: 'luis ríos'),
+        ],
+      );
+
+      expect(find.text('Compra'), findsNWidgets(2));
+      expect(find.text('Separación'), findsOneWidget);
+      expect(find.text('Bancolombia'), findsOneWidget);
+      // Solo los pedidos con comprobante tienen miniatura.
+      expect(find.byType(ReceiptThumb), findsNWidgets(2));
+
+      // La tarjeta pide la MINIATURA (con sesión), no el archivo original.
+      final thumbs = server.harness.adapter.to(ApiEndpoints.ordersReceipt);
+      expect(thumbs.map((r) => r.query['archivo']).toSet(), {
+        'c1.jpg',
+        'c2.jpg',
+      });
+      expect(thumbs.every((r) => r.query['miniatura'] == 1), isTrue);
+      expect(thumbs.every((r) => r.authorization == 'Bearer tok'), isTrue);
+
+      // Tocar la miniatura abre el visor, que sí baja el archivo completo.
+      await tester.tap(find.byType(ReceiptThumb).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(ReceiptDialog), findsOneWidget);
+      final full = server.harness.adapter
+          .to(ApiEndpoints.ordersReceipt)
+          .where((r) => !r.query.containsKey('miniatura'));
+      expect(full.single.query['archivo'], isIn(['c1.jpg', 'c2.jpg']));
+    });
+
+    testWidgets('si la miniatura falla, la tarjeta sigue entera', (
+      tester,
+    ) async {
+      final server = OrdersServer(
+        rows: [orderRow(receipt: 'c1.jpg', bank: 'Nequi')],
+      )..receiptFails = true;
+      await pumpAdminApp(
+        tester,
+        overrides: [
+          ...server.harness.overrides,
+          orderRefreshIntervalProvider.overrideWithValue(null),
+        ],
+      );
+
+      expect(find.text('Juan Pérez'), findsOneWidget);
+      expect(find.text('Nequi'), findsOneWidget);
+      expect(find.byIcon(Icons.broken_image_outlined), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('lista de pedidos', () {
     testWidgets('muestra lo que dice el contrato y cambia de pestaña', (
       tester,

@@ -54,6 +54,12 @@ class OrdersRepository {
     queryParameters: {'archivo': file},
   );
 
+  /// Miniatura (≤ 240 px) del comprobante, para la tarjeta del listado.
+  Future<Uint8List> receiptThumb(String file) => _api.getBytes(
+    ApiEndpoints.ordersReceipt,
+    queryParameters: {'archivo': file, 'miniatura': 1},
+  );
+
   /// Devuelve lo que contesta el servidor (p. ej. `monto_a_devolver`).
   Future<Map<String, dynamic>> confirm(int id) =>
       _api.post(ApiEndpoints.ordersConfirm, data: {'id': id});

@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:sistema_oro/core/network/api_endpoints.dart';
 
 import '../support/api_harness.dart';
 import '../support/fake_api_adapter.dart';
+import '../support/fake_image_picker.dart';
 
 // JSON copiado de la forma que documenta backend/docs/API.md (dinero como texto).
 
@@ -44,6 +46,8 @@ Map<String, dynamic> orderRow({
   String balance = '0.00',
   int overdue = 0,
   String? deadline,
+  String? receipt,
+  String? bank,
 }) => {
   'id_pedido': id,
   'codigo': code,
@@ -64,6 +68,8 @@ Map<String, dynamic> orderRow({
   'saldo': balance,
   'meses_vencidos': overdue,
   'fecha_limite': deadline,
+  'comprobante': receipt,
+  'banco': bank,
 };
 
 Map<String, dynamic> orderDetailJson(
@@ -150,6 +156,9 @@ class OrdersServer {
   List<Map<String, dynamic>> payments = [];
   Map<String, dynamic>? cancellation;
 
+  /// Si es true, las descargas de comprobante responden 404.
+  bool receiptFails = false;
+
   /// Respuesta por ruta de escritura: `(options) => {data}`.
   final Map<String, Map<String, dynamic> Function()> writes = {};
 
@@ -182,6 +191,20 @@ class OrdersServer {
           ),
           200,
         ),
+        ApiEndpoints.ordersReceipt =>
+          receiptFails
+              ? FakeApiAdapter.jsonResponse({
+                  'success': false,
+                  'codigo': 'NO_ENCONTRADO',
+                  'error': 'El comprobante no existe.',
+                }, 404)
+              : ResponseBody.fromBytes(
+                  FakeImagePicker.sample.bytes,
+                  200,
+                  headers: {
+                    Headers.contentTypeHeader: ['image/jpeg'],
+                  },
+                ),
         _ => FakeApiAdapter.jsonResponse({
           'success': false,
           'codigo': 'NO_ENCONTRADO',

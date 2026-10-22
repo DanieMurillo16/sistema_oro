@@ -14,6 +14,8 @@ extension OrderLabels on Order {
   String get createdLabel => createdAt == null ? '' : formatDate(createdAt!);
   String get deadlineLabel => deadline == null ? '' : formatDate(deadline!);
   String get quantityLabel => quantity > 1 ? '$quantity unidades' : '';
+  String get typeChipLabel => isLayaway ? 'Separación' : 'Compra';
+  String get bankLabel => formatDisplayText(bank ?? '');
   String get codeLabel => 'Pedido $code';
   String get whatsappMessage =>
       'Hola $clientLabel, te escribo sobre tu pedido $code ($garmentLabel).';
