@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sistema_oro/core/router/app_routes.dart';
 import 'package:sistema_oro/features/layaways/widgets/layaways_header.dart';
+import 'package:sistema_oro/features/layaways/widgets/layaways_tabs_bar.dart';
 import 'package:sistema_oro/features/layaways/widgets/reminder_tile.dart';
 import 'package:sistema_oro/features/orders/utils/order_rules.dart';
 import 'package:sistema_oro/features/orders/providers/order_filters_provider.dart';
@@ -23,6 +24,7 @@ class LayawaysScreen extends ConsumerWidget {
     final tab = ref.watch(layawaysFilterProvider).tab;
     return Scaffold(
       appBar: AppBar(title: const Text('Separados')),
+      bottomNavigationBar: const LayawaysTabsBar(),
       body: PageBody(
         child: Column(
           children: [
