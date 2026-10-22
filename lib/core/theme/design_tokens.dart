@@ -41,6 +41,7 @@ abstract final class DesignTokens {
   static const double placeholderIconSize = 56;
   static const double logoSize = 72;
   static const double thumbSize = 56; // foto de prenda en listas
+  static const double receiptThumbSize = 44; // comprobante en la tarjeta
   static const double miniThumbSize = 48; // mini foto dentro de una ficha
   static const double galleryThumbSize = 88; // fotos del detalle de una prenda
   static const double summaryThumbSize =

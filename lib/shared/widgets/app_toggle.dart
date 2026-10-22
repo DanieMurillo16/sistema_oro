@@ -26,6 +26,7 @@ class AppToggle<T> extends StatelessWidget {
     required this.onSelected,
     this.enabled = true,
     this.compact = false,
+    this.touch = false,
     this.expanded = true,
   });
 
@@ -37,13 +38,24 @@ class AppToggle<T> extends StatelessWidget {
   /// Menos alto y menos letra, para una barra de filtros.
   final bool compact;
 
+  /// Alto de toque cómodo (≥ 44 en cada opción), para una barra que se usa con
+  /// el pulgar. Manda sobre [compact] en el alto.
+  final bool touch;
+
   /// Ocupa el ancho disponible y reparte las opciones por igual; en `false`
   /// mide lo que midan sus opciones, para ir dentro de una fila.
   final bool expanded;
 
   static const double _height = 46;
   static const double _compactHeight = 38;
+  static const double _touchHeight = 54; // 44 de toque + holgura y borde
   static const double _gap = 4;
+
+  double get _pillHeight => touch
+      ? _touchHeight
+      : compact
+      ? _compactHeight
+      : _height;
 
   /// De -1 (izquierda) a 1 (derecha). Se alinea en vez de medir píxeles: un
   /// `LayoutBuilder` no soporta dimensiones intrínsecas dentro de
@@ -58,9 +70,7 @@ class AppToggle<T> extends StatelessWidget {
     final index = options.indexWhere((o) => o.value == selected);
 
     final pill = Container(
-      constraints: BoxConstraints(
-        minHeight: compact ? _compactHeight : _height,
-      ),
+      constraints: BoxConstraints(minHeight: _pillHeight),
       padding: const EdgeInsets.all(_gap),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest,
@@ -92,10 +102,7 @@ class AppToggle<T> extends StatelessWidget {
           // de la opción elegida.
           ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight:
-                  (compact ? _compactHeight : _height) -
-                  2 * _gap -
-                  2, // 2 = borde
+              minHeight: _pillHeight - 2 * _gap - 2, // 2 = borde
             ),
             child: IntrinsicHeight(
               child: Row(
