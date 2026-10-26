@@ -137,6 +137,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Guardar usuario'));
     await tester.pumpAndSettle();
+    // Desactivar pide confirmación; «Cancelar» no envía nada.
+    expect(server.harness.adapter.to(ApiEndpoints.usersEdit), isEmpty);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar').last);
+    await tester.pumpAndSettle();
+    expect(server.harness.adapter.to(ApiEndpoints.usersEdit), isEmpty);
+    await tester.tap(find.widgetWithText(FilledButton, 'Guardar usuario'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Desactivar'));
+    await tester.pumpAndSettle();
 
     final request = server.harness.adapter.to(ApiEndpoints.usersEdit).single;
     expect(request.bodyMap, {

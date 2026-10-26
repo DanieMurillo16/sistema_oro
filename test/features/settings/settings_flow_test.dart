@@ -206,6 +206,21 @@ void main() {
 
       await tester.tap(find.widgetWithText(FilledButton, 'Cambiar logo'));
       await tester.pumpAndSettle();
+      // Pide confirmación: hasta aquí no se envió nada, y «Cancelar» tampoco envía.
+      expect(
+        server.harness.adapter.to(ApiEndpoints.settingsLogoUpload),
+        isEmpty,
+      );
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+      await tester.pumpAndSettle();
+      expect(
+        server.harness.adapter.to(ApiEndpoints.settingsLogoUpload),
+        isEmpty,
+      );
+      await tester.tap(find.widgetWithText(FilledButton, 'Cambiar logo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Cambiar logo').last);
+      await tester.pumpAndSettle();
 
       final request = server.harness.adapter
           .to(ApiEndpoints.settingsLogoUpload)
@@ -228,6 +243,23 @@ void main() {
         server.harness.adapter.to(ApiEndpoints.settingsLogoRestore),
         isEmpty,
       );
+      // «Cancelar» y tocar fuera no envían nada.
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+      await tester.pumpAndSettle();
+      expect(
+        server.harness.adapter.to(ApiEndpoints.settingsLogoRestore),
+        isEmpty,
+      );
+      await tester.tap(find.text('Restaurar logo original'));
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5)); // fuera del diálogo
+      await tester.pumpAndSettle();
+      expect(
+        server.harness.adapter.to(ApiEndpoints.settingsLogoRestore),
+        isEmpty,
+      );
+      await tester.tap(find.text('Restaurar logo original'));
+      await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Restaurar'));
       await tester.pumpAndSettle();
 

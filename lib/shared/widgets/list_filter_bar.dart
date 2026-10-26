@@ -29,11 +29,16 @@ class ListFilterBar<T> extends StatelessWidget {
     children: [
       ListSearchField(hint: hint, onSearch: onSearch),
       const SizedBox(height: DesignTokens.spaceSm),
-      AppToggle<T>(
-        compact: true,
-        options: options,
-        selected: selected,
-        onSelected: onSelected,
+      // Con 4 opciones, cada etiqueta se encogía distinto con letra grande: el
+      // texto de las pestañas crece hasta 1.2× (como la barra inferior).
+      MediaQuery.withClampedTextScaling(
+        maxScaleFactor: 1.2,
+        child: AppToggle<T>(
+          compact: true,
+          options: options,
+          selected: selected,
+          onSelected: onSelected,
+        ),
       ),
     ],
   );

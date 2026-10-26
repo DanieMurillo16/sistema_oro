@@ -132,6 +132,25 @@ void main() {
     expect(server.harness.adapter.to(ApiEndpoints.paymentsRegister), isEmpty);
   });
 
+  testWidgets('anular un pago: abrir el diálogo y «Cancelar» no envían nada', (
+    tester,
+  ) async {
+    final (server, _) = await _open(tester);
+    await tester.tap(find.text('Ana Gómez'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.byTooltip('Anular pago'), 200);
+    await tester.ensureVisible(find.byTooltip('Anular pago'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Anular pago'));
+    await tester.pumpAndSettle();
+    expect(server.harness.adapter.to(ApiEndpoints.paymentsVoid), isEmpty);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+    await tester.pumpAndSettle();
+    expect(server.harness.adapter.to(ApiEndpoints.paymentsVoid), isEmpty);
+    expect(find.byKey(const Key('void_reason')), findsNothing); // se cerró
+  });
+
   testWidgets('anular un pago envía el id y el motivo', (tester) async {
     final (server, _) = await _open(tester);
     server.writes[ApiEndpoints.paymentsVoid] = () {

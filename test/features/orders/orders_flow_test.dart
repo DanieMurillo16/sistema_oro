@@ -147,6 +147,54 @@ void main() {
     });
   });
 
+  group('confirmación antes de rechazar o cancelar', () {
+    Future<OrdersServer> openOrder(
+      WidgetTester tester,
+      Map<String, dynamic> row,
+    ) async {
+      final server = OrdersServer(rows: [row]);
+      await pumpAdminApp(
+        tester,
+        overrides: [
+          ...server.harness.overrides,
+          orderRefreshIntervalProvider.overrideWithValue(null),
+        ],
+      );
+      if (row['estado'] != 'PENDIENTE') {
+        await tester.tap(find.text('Todos'));
+        await tester.pumpAndSettle();
+      }
+      await _openFirstOrder(tester);
+      return server;
+    }
+
+    testWidgets('rechazar: abrir el diálogo y «Cancelar» no envían nada', (
+      tester,
+    ) async {
+      final server = await openOrder(tester, orderRow());
+      await tester.tap(find.widgetWithText(FilledButton, 'Rechazar'));
+      await tester.pumpAndSettle();
+      expect(server.harness.adapter.to(ApiEndpoints.ordersReject), isEmpty);
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+      await tester.pumpAndSettle();
+      expect(server.harness.adapter.to(ApiEndpoints.ordersReject), isEmpty);
+      expect(find.byKey(const Key('reject_reason')), findsNothing); // cerró
+    });
+
+    testWidgets(
+      'cancelar pedido: abrir el diálogo y «Cancelar» no envían nada',
+      (tester) async {
+        final server = await openOrder(tester, orderRow(status: 'CONFIRMADO'));
+        await tester.tap(find.widgetWithText(FilledButton, 'Cancelar pedido'));
+        await tester.pumpAndSettle();
+        expect(server.harness.adapter.to(ApiEndpoints.ordersCancel), isEmpty);
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+        await tester.pumpAndSettle();
+        expect(server.harness.adapter.to(ApiEndpoints.ordersCancel), isEmpty);
+      },
+    );
+  });
+
   group('lista de pedidos', () {
     testWidgets('muestra lo que dice el contrato y cambia de pestaña', (
       tester,

@@ -124,6 +124,14 @@ void main() {
 
     await tester.tap(find.text('Cerrar sesión'));
     await tester.pumpAndSettle();
+    // Pide confirmación: «Cancelar» no cierra ni avisa al servidor.
+    expect(h.adapter.to(ApiEndpoints.logout), isEmpty);
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Cancelar'));
+    await tester.pumpAndSettle();
+    expect(h.adapter.to(ApiEndpoints.logout), isEmpty);
+    expect(h.tokens.token, isNotNull);
+    await tester.tap(find.text('Cerrar sesión'));
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Cerrar sesión'));
     await tester.pumpAndSettle();
 

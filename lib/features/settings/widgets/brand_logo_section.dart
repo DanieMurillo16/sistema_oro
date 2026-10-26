@@ -8,7 +8,7 @@ import 'package:sistema_oro/features/auth/models/app_session.dart';
 import 'package:sistema_oro/features/auth/providers/session_provider.dart';
 import 'package:sistema_oro/features/settings/providers/settings_provider.dart';
 import 'package:sistema_oro/features/settings/widgets/brand_logo_preview.dart';
-import 'package:sistema_oro/shared/widgets/confirm_action_dialog.dart';
+import 'package:sistema_oro/shared/utils/confirm_destructive.dart';
 import 'package:sistema_oro/shared/widgets/section_card.dart';
 
 /// «Logo de la marca»: vista previa sobre fondo oscuro (así se ve en el
@@ -23,25 +23,31 @@ class BrandLogoSection extends ConsumerWidget {
     final problem = result.problem;
     if (problem != null) return AppToast.warning(problem);
     final image = result.image;
-    if (image != null) {
-      await ref.read(brandLogoActionsProvider.notifier).change(image);
-    }
+    if (image == null) return;
+    final confirmed = await confirmDestructive(
+      context,
+      title: 'Cambiar el logo',
+      message:
+          'El catálogo mostrará el logo nuevo en lugar del actual. Puedes '
+          'volver al original cuando quieras.',
+      confirmLabel: 'Cambiar logo',
+      icon: Icons.swap_horiz,
+    );
+    if (confirmed == null || !context.mounted) return;
+    await ref.read(brandLogoActionsProvider.notifier).change(image);
   }
 
   Future<void> _restore(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const ConfirmActionDialog(
-        title: 'Restaurar el logo original',
-        message:
-            'El catálogo volverá a mostrar el logo original de la app. '
-            'El logo que subiste se borra del servidor.',
-        confirmLabel: 'Restaurar',
-        icon: Icons.restore,
-        destructive: true,
-      ),
+    final confirmed = await confirmDestructive(
+      context,
+      title: 'Restaurar el logo original',
+      message:
+          'El catálogo volverá a mostrar el logo original de la app. '
+          'El logo que subiste se borra del servidor.',
+      confirmLabel: 'Restaurar',
+      icon: Icons.restore,
     );
-    if (confirmed == true) {
+    if (confirmed != null) {
       await ref.read(brandLogoActionsProvider.notifier).restore();
     }
   }

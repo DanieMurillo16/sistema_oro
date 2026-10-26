@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistema_oro/shared/utils/confirm_destructive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistema_oro/core/theme/design_tokens.dart';
 import 'package:sistema_oro/features/users/models/managed_user.dart';
@@ -40,9 +41,23 @@ class _UserFormDialogState extends ConsumerState<UserFormDialog> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final notifier = ref.read(userActionsProvider.notifier);
+    // Desactivar corta su acceso: se confirma antes de guardar.
+    if (_isEdit && widget.user!.active && !_active) {
+      final confirmed = await confirmDestructive(
+        context,
+        title: 'Desactivar usuario',
+        itemName: widget.user!.name,
+        message:
+            'Ya no podrá entrar a la app y su sesión se cierra. Puedes '
+            'volver a activarlo cuando quieras.',
+        confirmLabel: 'Desactivar',
+        icon: Icons.person_off_outlined,
+      );
+      if (confirmed == null || !mounted) return;
+    }
     if (_isEdit) {
       notifier.edit(
         widget.user!.id,

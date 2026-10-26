@@ -7,7 +7,7 @@ import 'package:sistema_oro/features/auth/models/app_session.dart';
 import 'package:sistema_oro/features/auth/providers/session_provider.dart';
 import 'package:sistema_oro/features/more/widgets/more_tile.dart';
 import 'package:sistema_oro/features/more/widgets/user_card.dart';
-import 'package:sistema_oro/shared/widgets/confirm_action_dialog.dart';
+import 'package:sistema_oro/shared/utils/confirm_destructive.dart';
 import 'package:sistema_oro/shared/widgets/page_body.dart';
 
 class MoreScreen extends ConsumerWidget {
@@ -64,15 +64,13 @@ class MoreScreen extends ConsumerWidget {
   }
 
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const ConfirmActionDialog(
-        title: 'Cerrar sesión',
-        message: '¿Seguro que quieres salir de la administración?',
-        confirmLabel: 'Cerrar sesión',
-        icon: Icons.logout,
-      ),
+    final confirmed = await confirmDestructive(
+      context,
+      title: 'Cerrar sesión',
+      message: '¿Seguro que quieres salir de la administración?',
+      confirmLabel: 'Cerrar sesión',
+      icon: Icons.logout,
     );
-    if (confirmed == true) await ref.read(sessionProvider.notifier).logout();
+    if (confirmed != null) await ref.read(sessionProvider.notifier).logout();
   }
 }
