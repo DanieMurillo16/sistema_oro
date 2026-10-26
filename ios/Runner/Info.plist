@@ -6,10 +6,6 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Para adjuntar fotos de las prendas y comprobantes de pago.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Para tomar fotos de las prendas y de los comprobantes de pago.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Sistema Oro</string>
 	<key>CFBundleExecutable</key>
@@ -28,8 +24,16 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>whatsapp</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Para tomar fotos de las prendas y de los comprobantes de pago.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Para adjuntar fotos de las prendas y comprobantes de pago.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -57,10 +61,6 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>whatsapp</string>
-	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
