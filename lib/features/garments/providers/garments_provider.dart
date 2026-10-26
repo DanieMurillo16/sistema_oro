@@ -32,6 +32,17 @@ class GarmentsNotifier extends AsyncNotifier<List<Garment>> {
     state = result;
   }
 
+  /// Saca la prenda de la lista (eliminada en el servidor); las tarjetas
+  /// restantes se reacomodan solas.
+  void remove(int id) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData([
+      for (final g in current)
+        if (g.id != id) g,
+    ]);
+  }
+
   /// Reemplaza la prenda si existe, la agrega si no, y reordena (más nuevas
   /// primero).
   void upsert(Garment garment) {

@@ -57,6 +57,7 @@ abstract final class Permissions {
   static const garmentsEdit = 'prendas.editar';
   static const garmentsCost = 'prendas.ver_costo';
   static const garmentsStock = 'prendas.ajustar_stock';
+  static const garmentsDelete = 'prendas.eliminar';
   static const typesManage = 'tipos.gestionar';
   static const ordersView = 'pedidos.ver';
   static const ordersReview = 'pedidos.revisar';

@@ -21,6 +21,26 @@ class GarmentDraft {
     this.active = true,
   });
 
+  /// El borrador de una prenda ya completa (la del detalle), para reenviarla a
+  /// `prendas/editar.php` cambiando solo [active]. El costo no se envía: ausente
+  /// = no se toca. Nunca usar la fila del listado: no trae la descripción.
+  factory GarmentDraft.fromGarment(Garment g, {required bool active}) =>
+      GarmentDraft(
+        typeId: g.typeId,
+        name: g.name,
+        goldType: g.goldType,
+        weight: g.weight.toStringAsFixed(2),
+        salePrice: g.salePrice.round(),
+        reference: g.reference,
+        description: g.description,
+        length: g.length?.toStringAsFixed(2),
+        width: g.width?.toStringAsFixed(2),
+        thickness: g.thickness?.toStringAsFixed(2),
+        previousPrice: g.previousPrice?.round(),
+        stock: g.stock,
+        active: active,
+      );
+
   final int typeId;
   final String name;
   final GoldType goldType;

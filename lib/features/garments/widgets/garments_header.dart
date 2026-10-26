@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistema_oro/core/theme/design_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistema_oro/features/garments/providers/garment_selection_provider.dart';
 import 'package:sistema_oro/features/garments/providers/garments_filter_provider.dart';
 import 'package:sistema_oro/features/garments/utils/garment_rules.dart';
 import 'package:sistema_oro/features/garments/widgets/garments_summary.dart';
@@ -22,8 +23,16 @@ class GarmentsHeader extends ConsumerWidget {
         for (final tab in GarmentsTab.values)
           AppToggleOption(value: tab, label: tab.label),
       ],
-      onSelected: ref.read(garmentsFilterProvider.notifier).selectTab,
-      onSearch: ref.read(garmentsFilterProvider.notifier).search,
+      // Cambiar de pestaña o buscar descarta la selección: no se elimina algo
+      // que ya no se ve.
+      onSelected: (tab) {
+        ref.read(garmentSelectionProvider.notifier).clear();
+        ref.read(garmentsFilterProvider.notifier).selectTab(tab);
+      },
+      onSearch: (query) {
+        ref.read(garmentSelectionProvider.notifier).clear();
+        ref.read(garmentsFilterProvider.notifier).search(query);
+      },
     );
     if (!showSummary) return bar;
     return Column(

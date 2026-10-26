@@ -53,6 +53,13 @@ class GarmentsRepository {
   Future<void> edit(int id, GarmentDraft draft) =>
       _api.post(ApiEndpoints.garmentsEdit, data: draft.toEditJson(id));
 
+  /// Eliminación lógica: la prenda sale del catálogo y del inventario, pero el
+  /// historial de pedidos la sigue mostrando. [reason] es opcional.
+  Future<void> delete(int id, {String? reason}) => _api.post(
+    ApiEndpoints.garmentsDelete,
+    data: {'id': id, 'motivo': ?reason},
+  );
+
   Future<int> adjustStock(
     int id, {
     required int delta,

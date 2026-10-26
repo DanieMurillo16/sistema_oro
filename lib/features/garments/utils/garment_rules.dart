@@ -8,7 +8,8 @@ import 'package:sistema_oro/shared/utils/search_options.dart';
 enum GarmentsTab {
   all('Todas'),
   inStock('Con stock'),
-  soldOut('Agotadas');
+  soldOut('Agotadas'),
+  hidden('Ocultas');
 
   const GarmentsTab(this.label);
 
@@ -101,6 +102,7 @@ abstract final class GarmentRules {
       GarmentsTab.all => all,
       GarmentsTab.inStock => all.where((g) => !g.soldOut),
       GarmentsTab.soldOut => all.where((g) => g.soldOut),
+      GarmentsTab.hidden => all.where((g) => !g.active),
     };
     final text = normalizeSearch(query);
     if (text.isEmpty) return byTab.toList();

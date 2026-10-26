@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistema_oro/core/errors/app_exception.dart';
 import 'package:sistema_oro/core/services/image_picker_service.dart';
 import 'package:sistema_oro/features/garments/data/garments_repository.dart';
 import 'package:sistema_oro/features/garments/models/garment_draft.dart';
 import 'package:sistema_oro/features/garments/providers/garment_sync.dart';
+import 'package:sistema_oro/features/garments/providers/garment_uploads_provider.dart';
 
-/// Las escrituras sobre prendas (crear, editar, ajustar stock, imágenes). El
+/// Las escrituras sobre prendas (crear, editar, ajustar stock, eliminar, imágenes). El
 /// dato es el mensaje de éxito; la pantalla reacciona con `listenAction`. Tras
 /// cada una trae la prenda real y actualiza solo esa fila de la lista.
 final garmentActionsProvider =
@@ -22,30 +22,20 @@ class GarmentActionsNotifier extends AsyncNotifier<String?> {
   @override
   String? build() => null;
 
-  /// Crea la prenda y, ya con su id, sube las [photos] elegidas EN LA MISMA
-  /// operación (el botón del diálogo sigue cargando hasta que termina todo).
-  /// Si una foto falla la prenda ya existe: se avisa cuántas faltan y se
-  /// agregan desde el detalle.
+  /// Crea la prenda y la deja en la lista YA (trae la real y actualiza solo esa
+  /// fila). Las [photos] no se esperan: suben en segundo plano (la primera
+  /// sola, las demás en paralelo) y se ven como vista previa en su detalle.
   Future<void> create(
     GarmentDraft draft, {
     List<PickedImage> photos = const [],
   }) => _run(() async {
     final id = await _repository.create(draft);
     createdId = id;
-    var failed = 0;
-    for (var i = 0; i < photos.length; i++) {
-      try {
-        await _repository.addImage(id, order: i + 1, image: photos[i]);
-      } on AppException {
-        failed++;
-      }
-    }
     await syncGarment(ref, id);
-    return failed == 0
+    ref.read(garmentUploadsProvider.notifier).start(id, photos);
+    return photos.isEmpty
         ? 'Prenda creada'
-        : 'Prenda creada, pero $failed '
-              '${failed == 1 ? 'foto no se pudo subir' : 'fotos no se pudieron subir'}. '
-              'Agrégalas desde el detalle.';
+        : 'Prenda creada. Las fotos se suben en segundo plano.';
   });
 
   Future<void> edit(int id, GarmentDraft draft) => _run(() async {

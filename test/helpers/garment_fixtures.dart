@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sistema_oro/core/network/api_endpoints.dart';
 
 import '../support/api_harness.dart';
@@ -12,6 +14,7 @@ const ownerGarmentPermissions = [
   'prendas.editar',
   'prendas.ver_costo',
   'prendas.ajustar_stock',
+  'prendas.eliminar',
   'tipos.gestionar',
 ];
 
@@ -46,10 +49,13 @@ Map<String, dynamic> garmentRow({
   'miniatura': null,
 };
 
-Map<String, dynamic> garmentDetailJson(Map<String, dynamic> row) => okJson({
+Map<String, dynamic> garmentDetailJson(
+  Map<String, dynamic> row, {
+  List<Map<String, dynamic>> images = const [],
+}) => okJson({
   ...row,
   'descripcion': 'Cadena de eslabones cubanos',
-  'imagenes': <Map<String, dynamic>>[],
+  'imagenes': images,
 });
 
 const typesJson = [
@@ -80,6 +86,21 @@ class GarmentsServer {
   final List<Map<String, dynamic>> rows;
   final Map<String, Map<String, dynamic> Function()> writes = {};
 
+  /// Fotos del detalle de cualquier prenda (`id_imagen`, `orden`, urls).
+  List<Map<String, dynamic>> images = [];
+
+  /// Rutas que el servidor rechaza con una regla de negocio: `(estado, mensaje)`.
+  final Map<String, (int, String)> rejects = {};
+
+  /// Prendas que el servidor se niega a eliminar: `id → (estado, mensaje)`.
+  final Map<int, (int, String)> deleteRejects = {};
+
+  final Map<String, Completer<void>> _gates = {};
+
+  /// Retiene la respuesta de [path] hasta que se complete el resultado (para
+  /// ver qué pasa en pantalla mientras el servidor «piensa»).
+  Completer<void> hold(String path) => _gates[path] = Completer<void>();
+
   /// Rutas que fallan con 500 (para probar qué pasa si algo sale mal a mitad).
   final Set<String> failing = {};
 
@@ -91,6 +112,18 @@ class GarmentsServer {
           'codigo': 'ERROR_INTERNO',
           'error': 'No se pudo completar.',
         }, 500);
+      }
+      await _gates[o.path]?.future;
+      var rejected = rejects[o.path];
+      if (o.path == ApiEndpoints.garmentsDelete && o.data is Map) {
+        rejected ??= deleteRejects[(o.data as Map)['id']];
+      }
+      if (rejected != null) {
+        return FakeApiAdapter.jsonResponse({
+          'success': false,
+          'codigo': 'VALIDACION',
+          'error': rejected.$2,
+        }, rejected.$1);
       }
       final write = writes[o.path];
       if (write != null) {
@@ -110,6 +143,7 @@ class GarmentsServer {
             rows.firstWhere(
               (r) => r['id_prenda'].toString() == '${o.queryParameters['id']}',
             ),
+            images: images,
           ),
           200,
         ),

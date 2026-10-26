@@ -11,6 +11,10 @@ abstract final class ApiEndpoints {
   static const publicTypes = 'publico/tipos.php';
   static const publicSettings = 'publico/ajustes.php';
   static const publicGarments = 'publico/prendas.php';
+
+  /// Contador de versión del catálogo (sondeo barato: pedir el listado solo
+  /// cuando cambie). Lo consume el catálogo en Astro; aquí queda reflejado.
+  static const publicVersion = 'publico/version.php';
   static const publicGarment = 'publico/prenda.php';
   static const publicRequest = 'publico/solicitud.php';
 
@@ -23,6 +27,7 @@ abstract final class ApiEndpoints {
   static const garmentsGet = 'prendas/obtener.php';
   static const garmentsCreate = 'prendas/crear.php';
   static const garmentsEdit = 'prendas/editar.php';
+  static const garmentsDelete = 'prendas/eliminar.php';
   static const garmentsAdjustStock = 'prendas/ajustar_stock.php';
   static const garmentsImageAdd = 'prendas/imagen_agregar.php';
   static const garmentsImageRemove = 'prendas/imagen_quitar.php';
