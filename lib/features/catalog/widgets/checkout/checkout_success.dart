@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sistema_oro/core/services/app_toast.dart';
+import 'package:sistema_oro/core/theme/app_catalog_colors.dart';
 import 'package:sistema_oro/core/theme/design_tokens.dart';
 import 'package:sistema_oro/core/theme/status_colors.dart';
 import 'package:sistema_oro/features/catalog/models/catalog_models.dart';
@@ -60,6 +61,17 @@ class CheckoutSuccess extends StatelessWidget {
           textAlign: TextAlign.center,
           style: textTheme.bodyMedium,
         ),
+        if (kind == RequestKind.layaway) ...[
+          const SizedBox(height: DesignTokens.spaceMd),
+          Text(
+            LayawayRule.rule,
+            textAlign: TextAlign.center,
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppCatalogColors.goldText,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ],
     );
   }

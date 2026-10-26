@@ -30,6 +30,7 @@ class CheckoutDialog extends ConsumerStatefulWidget {
 
 class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
   final _formKey = GlobalKey<CheckoutFormState>();
+  var _accepted = false; // casilla del separado (estado visual)
 
   bool get _isLayaway => widget.kind == RequestKind.layaway;
 
@@ -80,6 +81,8 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                 garment: widget.garment,
                 kind: widget.kind,
                 settings: settings,
+                accepted: _accepted,
+                onAcceptedChanged: (value) => setState(() => _accepted = value),
                 onSubmit: (draft, image) =>
                     ref.read(checkoutProvider.notifier).submit(draft, image),
               ),
@@ -106,7 +109,7 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
                       showCancel: false,
                     )
             : DialogActions(
-                onConfirm: settings == null
+                onConfirm: settings == null || (_isLayaway && !_accepted)
                     ? null
                     : () => _formKey.currentState?.submit(),
                 isLoading: checkout.isLoading,

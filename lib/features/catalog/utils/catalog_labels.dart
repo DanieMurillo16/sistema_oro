@@ -78,6 +78,17 @@ extension CatalogSettingsLabels on CatalogSettings {
   String get percentLabel => '${layawayPercent.round()} %';
 }
 
+/// La regla del separado, con las mismas palabras en todos lados: separar NO es
+/// llevarse la prenda; se entrega únicamente al pagar el 100 %.
+abstract final class LayawayRule {
+  static const rule =
+      'Separar no es llevarte la prenda: te la entregamos únicamente cuando '
+      'pagues el 100 %.';
+  static const accept =
+      'Entiendo que la prenda se entrega solo cuando pague el 100 %';
+  static const short = 'Se entrega al pagar el 100 %';
+}
+
 extension RequestKindLabels on RequestKind {
   String get successTitle => this == RequestKind.purchase
       ? '¡Recibimos tu compra!'
@@ -87,7 +98,8 @@ extension RequestKindLabels on RequestKind {
   /// para que lo busque y lo apruebe.
   String whatsappMessage(String garmentName, String code) =>
       'Hola, acabo de enviar el comprobante de ${this == RequestKind.purchase ? 'mi compra' : 'mi separado'} '
-      'de $garmentName. Mi código es $code.';
+      'de $garmentName. Mi código es $code.'
+      '${this == RequestKind.layaway ? ' ${LayawayRule.accept}.' : ''}';
 }
 
 extension CatalogPageLabels on CatalogPage {

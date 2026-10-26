@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistema_oro/core/theme/app_catalog_colors.dart';
 import 'package:sistema_oro/core/theme/design_tokens.dart';
+import 'package:sistema_oro/features/catalog/utils/catalog_labels.dart';
 
 /// Franja de confianza compacta: tres razones para comprar separadas por
 /// divisores finos, sin cajas. Solo dice lo que el negocio ofrece de verdad:
@@ -9,13 +10,13 @@ import 'package:sistema_oro/core/theme/design_tokens.dart';
 class CatalogTrustStrip extends StatelessWidget {
   const CatalogTrustStrip({super.key});
 
-  static const _items = [
+  static final _items = [
     (
       Icons.workspace_premium_outlined,
       'Oro nacional e italiano',
       'Peso y medidas a la vista',
     ),
-    (Icons.bookmark_border, 'Separa con el 20 %', 'Completa en abonos'),
+    (Icons.bookmark_border, 'Separa con el 20 %', LayawayRule.short),
     (
       Icons.local_shipping_outlined,
       'Recoge o recibe en casa',

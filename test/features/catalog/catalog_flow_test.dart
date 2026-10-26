@@ -11,6 +11,7 @@ import 'package:sistema_oro/features/catalog/widgets/catalog_card.dart';
 import 'package:sistema_oro/features/catalog/widgets/catalog_brand.dart';
 import 'package:sistema_oro/features/catalog/widgets/catalog_chat_button.dart';
 import 'package:sistema_oro/features/catalog/widgets/catalog_header.dart';
+import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_success.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_summary.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/quantity_stepper.dart';
 import 'package:sistema_oro/features/catalog/widgets/catalog_filters.dart';
@@ -99,6 +100,14 @@ Future<void> _fillContact(WidgetTester tester) async {
 Future<void> _attachReceipt(WidgetTester tester) async {
   await tester.ensureVisible(find.text('Adjuntar comprobante'));
   await tester.tap(find.widgetWithText(OutlinedButton, 'Adjuntar comprobante'));
+  await tester.pumpAndSettle();
+}
+
+/// Marca la casilla obligatoria del separado.
+Future<void> _acceptLayaway(WidgetTester tester) async {
+  final box = find.byKey(const Key('layaway_accept'));
+  await tester.ensureVisible(box);
+  await tester.tap(box);
   await tester.pumpAndSettle();
 }
 
@@ -506,6 +515,176 @@ void main() {
       },
     );
 
+    group('separar no es llevarse la prenda', () {
+      const rule =
+          'Separar no es llevarte la prenda: te la entregamos únicamente '
+          'cuando pagues el 100 %.';
+
+      testWidgets('el detalle, el aviso y la casilla dicen la regla', (
+        tester,
+      ) async {
+        await _open(tester);
+        await _openGarment(tester);
+        expect(find.text(rule), findsWidgets); // «Plan separe» del detalle
+
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Separar'));
+        await tester.pumpAndSettle();
+        expect(find.text(rule), findsWidgets); // aviso dentro del diálogo
+        expect(find.textContaining('Plazo: 1 mes'), findsOneWidget);
+        expect(
+          find.textContaining(r'$ 80.000'),
+          findsWidgets,
+        ); // recargo (ajustes)
+        expect(
+          find.text(
+            'Entiendo que la prenda se entrega solo cuando pague el 100 %',
+          ),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('«Enviar separado» queda apagado hasta marcar la casilla', (
+        tester,
+      ) async {
+        final s = await _open(tester);
+        s.server.requestResponses.add(() => CatalogServer.created('LY000009'));
+        await _openGarment(tester);
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Separar'));
+        await tester.pumpAndSettle();
+        await _fillContact(tester);
+        await _attachReceipt(tester);
+
+        FilledButton send() => tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Enviar separado'),
+        );
+        expect(send().onPressed, isNull); // existe, pero apagado
+        await _acceptLayaway(tester);
+        expect(send().onPressed, isNotNull);
+        await _acceptLayaway(tester); // la desmarca: vuelve a apagarse
+        expect(send().onPressed, isNull);
+        expect(
+          s.server.harness.adapter.to(ApiEndpoints.publicRequest),
+          isEmpty,
+        );
+      });
+
+      testWidgets('la confirmación y el WhatsApp repiten la regla', (
+        tester,
+      ) async {
+        final s = await _open(tester);
+        s.server.requestResponses.add(() => CatalogServer.created('LY000010'));
+        await _openGarment(tester);
+        await tester.tap(find.widgetWithText(OutlinedButton, 'Separar'));
+        await tester.pumpAndSettle();
+        await _fillContact(tester);
+        await _attachReceipt(tester);
+        await _acceptLayaway(tester);
+        await _send(tester, 'Enviar separado');
+
+        expect(
+          find.descendant(
+            of: find.byType(CheckoutSuccess),
+            matching: find.text(rule),
+          ),
+          findsOneWidget,
+        ); // en la confirmación
+        await tester.tap(
+          find.widgetWithText(FilledButton, 'Enviar por WhatsApp'),
+        );
+        await tester.pumpAndSettle();
+        final message = s.launcher.whatsappCalls.single.message!;
+        expect(message, contains('mi separado'));
+        expect(message, contains('LY000010'));
+        expect(
+          message,
+          contains(
+            'Entiendo que la prenda se entrega solo cuando pague el 100 %',
+          ),
+        );
+      });
+
+      testWidgets('una compra no lleva la casilla ni el aviso', (tester) async {
+        await _open(tester);
+        await _openGarment(tester);
+        await tester.tap(find.widgetWithText(FilledButton, 'Comprar ahora'));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('layaway_accept')), findsNothing);
+        expect(
+          find.widgetWithText(FilledButton, 'Enviar compra'),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('el inicio ya no sugiere llevársela al separar', (
+        tester,
+      ) async {
+        await _open(tester);
+        await tester.scrollUntilVisible(
+          find.text('Se entrega al pagar el 100 %'),
+          300,
+          scrollable: find
+              .descendant(
+                of: find.byType(CustomScrollView),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        expect(find.text('Se entrega al pagar el 100 %'), findsOneWidget);
+        expect(find.text('Completa en abonos'), findsNothing);
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 3));
+      });
+
+      testWidgets(
+        'con teclado y 320×1.5 la casilla se alcanza y habilita el botón',
+        (tester) async {
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+          tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+          final s = await _open(tester, width: 320, height: 760);
+          s.server.requestResponses.add(
+            () => CatalogServer.created('LY000011'),
+          );
+          await _openGarment(tester);
+          await tester.tap(find.widgetWithText(OutlinedButton, 'Separar'));
+          await tester.pumpAndSettle();
+          await _fillContact(tester);
+          await _attachReceipt(tester);
+          tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+          addTearDown(tester.view.resetViewInsets);
+          await tester.pumpAndSettle();
+
+          await _acceptLayaway(tester); // ensureVisible + tap
+          expect(tester.takeException(), isNull);
+          tester.view.resetViewInsets();
+          await tester.pumpAndSettle();
+          expect(
+            tester
+                .widget<FilledButton>(
+                  find.widgetWithText(FilledButton, 'Enviar separado'),
+                )
+                .onPressed,
+            isNotNull,
+          );
+        },
+      );
+
+      testWidgets('el aviso y la casilla no desbordan a 320 con letra 1.5', (
+        tester,
+      ) async {
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        for (final width in [320.0, 390.0]) {
+          await _open(tester, width: width);
+          await _openGarment(tester);
+          await tester.tap(find.widgetWithText(OutlinedButton, 'Separar'));
+          await tester.pumpAndSettle();
+          await _acceptLayaway(tester);
+          expect(tester.takeException(), isNull, reason: '$width');
+          await tester.pumpWidget(const SizedBox());
+        }
+      });
+    });
+
     testWidgets('separar envía el 20 % por defecto como monto', (tester) async {
       final s = await _open(tester);
       s.server.requestResponses.add(() => CatalogServer.created('LY000008'));
@@ -515,6 +694,7 @@ void main() {
       await tester.pumpAndSettle();
       await _fillContact(tester);
       await _attachReceipt(tester);
+      await _acceptLayaway(tester);
       await _send(tester, 'Enviar separado');
 
       final fields = s.server.harness.adapter
@@ -538,6 +718,7 @@ void main() {
         '100000',
       );
       await _attachReceipt(tester);
+      await _acceptLayaway(tester);
       await _send(tester, 'Enviar separado');
 
       expect(find.textContaining('transferir mínimo'), findsOneWidget);

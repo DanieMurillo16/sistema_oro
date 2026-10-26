@@ -32,6 +32,15 @@ class LayawayPlan extends StatelessWidget {
               'Plan separe · ${percent.round()} %',
               style: textTheme.titleSmall,
             ),
+            const SizedBox(height: DesignTokens.spaceXs),
+            Text(
+              LayawayRule.rule,
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppCatalogColors.goldText,
+                fontWeight: FontWeight.w700,
+                height: 1.35,
+              ),
+            ),
             const SizedBox(height: DesignTokens.spaceSm),
             Row(
               children: [

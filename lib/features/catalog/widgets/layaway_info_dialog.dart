@@ -73,6 +73,16 @@ class LayawayInfoDialog extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: DesignTokens.spaceMd),
+          Padding(
+            padding: const EdgeInsets.only(bottom: DesignTokens.spaceMd),
+            child: Text(
+              LayawayRule.rule,
+              style: textTheme.titleSmall?.copyWith(
+                color: AppCatalogColors.goldText,
+                height: 1.35,
+              ),
+            ),
+          ),
           const _Point(
             Icons.bookmark_added_outlined,
             'La apartamos a tu nombre y sale del catálogo.',

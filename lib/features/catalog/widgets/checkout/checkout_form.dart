@@ -11,6 +11,8 @@ import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_box_toggl
 import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_contact_fields.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_delivery_fields.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_quantity_row.dart';
+import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_layaway_accept.dart';
+import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_layaway_notice.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/checkout_summary.dart';
 import 'package:sistema_oro/features/catalog/widgets/checkout/transfer_card.dart';
 import 'package:sistema_oro/shared/widgets/image_picker_field.dart';
@@ -25,12 +27,21 @@ class CheckoutForm extends StatefulWidget {
     required this.kind,
     required this.settings,
     required this.onSubmit,
+    this.accepted = false,
+    this.onAcceptedChanged,
   });
 
   final CatalogGarment garment;
   final RequestKind kind;
   final CatalogSettings settings;
   final void Function(CheckoutDraft draft, PickedImage receipt) onSubmit;
+
+  /// La casilla del separado: su valor vive en el diálogo (una sola fuente).
+  final bool accepted;
+
+  /// Avisa cuando la persona marca o desmarca «Entiendo que la prenda se
+  /// entrega solo cuando pague el 100 %» (solo en un separado).
+  final ValueChanged<bool>? onAcceptedChanged;
 
   @override
   State<CheckoutForm> createState() => CheckoutFormState();
@@ -75,6 +86,7 @@ class CheckoutFormState extends State<CheckoutForm> {
   /// Valida y, si todo está bien, entrega el borrador y el comprobante.
   void submit() {
     setState(() => _submitted = true);
+    if (_isLayaway && !widget.accepted) return;
     if (!_formKey.currentState!.validate() || _receipt == null) return;
     final shipping = _delivery == CatalogDelivery.shipping;
     widget.onSubmit(
@@ -105,6 +117,10 @@ class CheckoutFormState extends State<CheckoutForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_isLayaway) ...[
+            CheckoutLayawayNotice(settings: widget.settings),
+            gap,
+          ],
           CheckoutSummary(
             garment: widget.garment,
             kind: widget.kind,
@@ -166,6 +182,13 @@ class CheckoutFormState extends State<CheckoutForm> {
                 ? 'Adjunta el comprobante de la transferencia.'
                 : null,
           ),
+          if (_isLayaway) ...[
+            const SizedBox(height: DesignTokens.spaceMd),
+            CheckoutLayawayAccept(
+              accepted: widget.accepted,
+              onChanged: (value) => widget.onAcceptedChanged?.call(value),
+            ),
+          ],
         ],
       ),
     );

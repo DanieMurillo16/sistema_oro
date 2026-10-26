@@ -52,8 +52,8 @@ class HeroCopy extends StatelessWidget {
         ),
         SizedBox(height: gap),
         Text(
-          'Cadenas, pulseras y dijes. Elige tu pieza, sepárala con el 20 % '
-          'y complétala en abonos.',
+          'Cadenas, pulseras y dijes. Elige tu pieza y sepárala con el 20 %: '
+          'te la entregamos cuando completes el pago.',
           style: textTheme.bodyLarge?.copyWith(
             fontSize: wide ? 18 : 15,
             height: 1.45,
